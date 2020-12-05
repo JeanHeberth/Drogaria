@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	template="/templates/modeloSistema.xhtml">
+
+
+	<ui:define name="menu">
+		<ui:include src="/includes/menuPrincipal.xhtml" />
+	</ui:define>
+
+
+	<!--  Formulário de listagem -->
+
+	<ui:define name="conteudo">
+		<h:form id="frmFabListagem">
+			<p:dataTable id="tblFabricantes" widgetVar="tabelaFabricantes"
+				emptyMessage=" Nenhum registro encontrado."
+				value="#{MBFabricante.itens}" var="item"
+				filteredValue="#{MBFabricante.itensFiltrados}" paginator="true"
+				rows="5">
+
+				
+				<f:facet name="header">
+					<div style="text-align: center;">Fabricante - Listagem</div>
+				</f:facet>
+
+				<p:column headerText="Código" sortBy="#{item.codigo}"
+					filterBy="#{item.codigo}">
+					<h:outputText value="#{item.codigo}" />
+				</p:column>
+				<p:column headerText="Nome do Fabricante" sortBy="#{item.descricao}"
+					filterBy="#{item.descricao}">
+					<h:outputText value="#{item.descricao}" />
+				</p:column>
+
+
+				<!--  Botão Opção Excluir -->
+
+				<p:column headerText="Opções">
+					<p:commandButton icon=" ui-icon-trash"
+						oncomplete="PF('dlgFabExcluir').show();"
+						update=":frmFabExcluir:pnlFabExcluir">
+						<f:setPropertyActionListener target="#{MBFabricante.fabricante}"
+							value="#{item}" />
+					</p:commandButton>
+
+					<!--  Botão Opção Editar -->
+
+					<p:commandButton icon=" ui-icon-pencil"
+						oncomplete="PF('dlgFabEditar').show();"
+						update=":frmFabEditar:pnlFabEditar">
+						<f:setPropertyActionListener target="#{MBFabricante.fabricante}"
+							value="#{item}" />
+					</p:commandButton>
+				</p:column>
+
+				<!--  Botão cadastra Novo usuário -->
+
+				<f:facet name="footer">
+					<p:commandButton value="Novo"
+						actionListener="#{MBFabricante.prepararNovo}"
+						oncomplete="PF('dlgFabNovo').show();"
+						update=":frmFabNovo:pnlFabNovo" />
+				</f:facet>
+			</p:dataTable>
+		</h:form>
+
+		<!-- Formulário de cadastrar novo usuário -->
+
+		<p:dialog widgetVar="dlgFabNovo" closable="false" draggable="false"
+			resizable="false" modal="true" appendTo="@(body)"
+			header="Fabricante - Novo">
+			<h:form id="frmFabNovo">
+				<h:panelGrid id="pnlFabNovo" columns="2">
+					<p:outputLabel value="Descrição" />
+					<p:inputText size="30" maxlength="50"
+						value="#{MBFabricante.fabricante.descricao}" />
+				</h:panelGrid>
+
+
+
+				<h:panelGrid columns="2">
+					<p:commandButton value="Gravar"
+						actionListener="#{MBFabricante.novo}"
+						oncomplete="PF('dlgFabNovo').hide(); PF('tabelaFabricantes').clearFilters();"
+						update=":frmFabListagem:tblFabricantes :msgGlobal"
+						icon="ui-icon-disk" />
+					<p:commandButton value="Cancelar"
+						onclick="PF('dlgFabNovo').hide();"
+						icon="ui-icon-squaresmall-close" />
+				</h:panelGrid>
+			</h:form>
+		</p:dialog>
+
+
+		<!-- Formulário de Excluir usuário -->
+
+		<p:dialog widgetVar="dlgFabExcluir" closable="false" draggable="false"
+			resizable="false" modal="true" appendTo="@(body)"
+			header="Fabricante - Excluir">
+
+			<h:form id="frmFabExcluir">
+				<h:panelGrid id="pnlFabExcluir" columns="2">
+					<p:outputLabel value="Código: " />
+					<h:outputText value="#{MBFabricante.fabricante.codigo}" />
+					<p:outputLabel value="Descrição" />
+					<h:outputText value="#{MBFabricante.fabricante.descricao}" />
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+					<p:commandButton value="Excluir"
+						actionListener="#{MBFabricante.excluir}"
+						oncomplete="PF('dlgFabExcluir').hide(); PF('tabelaFabricantes').clearFilters();"
+						update=":frmFabListagem:tblFabricantes :msgGlobal"
+						icon="ui-icon-trash" />
+					<p:commandButton value="Cancelar"
+						onclick="PF('dlgFabExcluir').hide(); "
+						icon="ui-icon-squaresmall-close" />
+				</h:panelGrid>
+			</h:form>
+		</p:dialog>
+
+
+
+		<!-- Formulário de Editar usuário -->
+
+
+		<p:dialog widgetVar="dlgFabEditar" closable="false" draggable="false"
+			resizable="false" modal="true" appendTo="@(body)"
+			header=" Fabricante - Editar">
+
+			<h:form id="frmFabEditar">
+				<h:panelGrid id="pnlFabEditar" columns="2">
+					<p:outputLabel value="Código" />
+					<h:outputText value="#{MBFabricante.fabricante.codigo}" />
+					<p:outputLabel value="Descrição" />
+					<p:inputText value="#{MBFabricante.fabricante.descricao}" size="30"
+						maxlength="50" />
+
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+
+					<p:commandButton value="Salvar"
+						actionListener="#{MBFabricante.editar}"
+						oncomplete="PF('dlgFabEditar').hide(); PF('tabelaFabricantes').clearFilters(); "
+						update=":frmFabListagem:tblFabricantes :msgGlobal"
+						icon=" ui-icon-disk" />
+					<p:commandButton value="Cancelar"
+						onclick="PF('dlgFabEditar').hide();"
+						icon="ui-icon-squaresmall-close" />
+
+
+				</h:panelGrid>
+			</h:form>
+		</p:dialog>
+	</ui:define>
+</ui:composition>
